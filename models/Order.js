@@ -11,6 +11,7 @@ const orderSchema = new mongoose.Schema({
   customer: {
     name: { type: String, default: 'Guest' },
     email: { type: String, default: 'guest@shopverse.local' },
+    phone: { type: String, default: '' },
   },
   items: { type: [orderItemSchema], required: true },
   total: { type: Number, required: true, min: 0 },

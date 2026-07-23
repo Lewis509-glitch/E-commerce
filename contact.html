@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShopVerse Contact</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+</head>
+
+<body>
+  <header class="header" id="header">
+    <div class="container header__inner">
+      <a href="index.html" class="header__logo">
+        <i class="fas fa-cube"></i> KYLIN COMPANY
+      </a>
+      <nav class="header__nav" id="mainNav">
+        <ul class="header__nav-list">
+          <li><a href="index.html#products">Products</a></li>
+          <li><a href="admin.html">Admin</a></li>
+          <li><a href="orders.html">Orders</a></li>
+        </ul>
+      </nav>
+      <div class="header__actions">
+        <a href="index.html" class="btn btn-outline">Back to Store</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="admin-page">
+      <div class="container">
+        <div class="admin-panel-header">
+          <div>
+            <p class="admin-eyebrow">Contact Us</p>
+            <h1>Send a message to ShopVerse support</h1>
+            <p class="admin-intro">Use this form for inquiries, order questions, or product support. Your message will be saved and forwarded to the admin WhatsApp number.</p>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <div class="admin-card-title">Contact Support</div>
+          <div class="admin-card-body">
+            <form id="contactForm">
+              <div class="admin-form-row">
+                <input type="text" id="contactName" placeholder="Your name" required />
+                <input type="email" id="contactEmail" placeholder="Your email" required />
+              </div>
+              <div class="admin-form-row">
+                <input type="tel" id="contactPhone" placeholder="Your phone number" required />
+              </div>
+              <textarea id="contactMessage" placeholder="Your message" rows="5" required></textarea>
+              <button type="submit" class="btn btn-primary">Send Message</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

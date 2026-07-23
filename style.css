@@ -623,6 +623,34 @@ img {
   color: #2a2a72;
 }
 
+.checkout-fields {
+  margin-top: 1.5rem;
+  padding: 1.2rem;
+  background: #f8f9fc;
+  border-radius: 18px;
+  border: 1px solid #e5e7eb;
+}
+
+.checkout-fields h4 {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  color: #111827;
+}
+
+.checkout-fields input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 14px;
+  background: #fff;
+  margin-bottom: 0.85rem;
+}
+
+.checkout-note {
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
 /* ===== TOAST ===== */
 .toast {
   position: fixed;

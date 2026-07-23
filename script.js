@@ -125,13 +125,17 @@ function saveProducts() {
   localStorage.setItem('shopverse_products', JSON.stringify(products));
 }
 
-async function submitOrder(cartItems) {
+async function submitOrder(cartItems, customer = {}) {
   if (!cartItems || cartItems.length === 0) {
     throw new Error('Cart is empty.');
   }
 
   const orderPayload = {
-    customer: { name: 'Guest Shopper', email: 'guest@shopverse.local' },
+    customer: {
+      name: customer.name || 'Guest Shopper',
+      email: customer.email || 'guest@shopverse.local',
+      phone: customer.phone || '',
+    },
     items: cartItems.map(item => ({
       productId: item.id,
       name: item.name,
@@ -154,6 +158,24 @@ async function submitOrder(cartItems) {
   }
 
   return response.json();
+}
+
+function getCustomerDetails() {
+  return {
+    name: checkoutName?.value.trim() || 'Guest Shopper',
+    email: checkoutEmail?.value.trim() || 'guest@shopverse.local',
+    phone: checkoutPhone?.value.trim() || '',
+  };
+}
+
+function updateCheckoutFields() {
+  if (!checkoutFields) return;
+  checkoutFields.style.display = cart.length > 0 ? 'block' : 'none';
+}
+
+function openWhatsAppLink(url) {
+  if (!url) return;
+  window.open(url, '_blank');
 }
 
 async function fetchOrders() {
@@ -222,6 +244,7 @@ async function updateDashboardCounts() {
 let cart = [];
 let currentCategory = 'all';
 let searchQuery = '';
+let contactStatusFilter = 'All';
 
 // ===== DOM REFS =====
 const productGrid = document.getElementById('productGrid');
@@ -234,6 +257,9 @@ const cartEmpty = document.getElementById('cartEmpty');
 const cartTotalPrice = document.getElementById('cartTotalPrice');
 const cartFooter = document.getElementById('cartFooter');
 const toast = document.getElementById('toast');
+const cartToggle = document.getElementById('cartToggle');
+const cartClose = document.getElementById('cartClose');
+const cartContinueShopping = document.getElementById('cartContinueShopping');
 
 // Admin refs (may be null if not added)
 const adminModal = document.getElementById('adminModal');
@@ -246,12 +272,26 @@ const adminList = document.getElementById('adminList');
 const addAdminForm = document.getElementById('addAdminForm');
 const adminProductCountEl = document.getElementById('adminProductCount');
 const adminUserCountEl = document.getElementById('adminUserCount');
+const adminContactCountEl = document.getElementById('adminContactCount');
+const adminContactList = document.getElementById('adminContactList');
+const adminContactFilter = document.getElementById('adminContactFilter');
 const orderSummaryCount = document.getElementById('orderSummaryCount');
 const orderSummaryStatus = document.getElementById('orderSummaryStatus');
 const ordersList = document.getElementById('ordersList');
+const checkoutFields = document.getElementById('checkoutFields');
+const checkoutName = document.getElementById('checkoutName');
+const checkoutEmail = document.getElementById('checkoutEmail');
+const checkoutPhone = document.getElementById('checkoutPhone');
+const contactForm = document.getElementById('contactForm');
+const searchInput = document.getElementById('searchInput');
+const searchBtn = document.getElementById('searchBtn');
+const checkoutBtn = document.getElementById('checkoutBtn');
+const menuToggle = document.getElementById('menuToggle');
+const mobileNav = document.getElementById('mobileNav');
 
 // ===== RENDER PRODUCTS =====
 function renderProducts() {
+  if (!productGrid || !productCount) return;
   let filtered = products;
   
   if (currentCategory !== 'all') {
@@ -350,7 +390,13 @@ function getCartItemCount() {
 
 function updateCartUI() {
   const count = getCartItemCount();
-  cartBadge.textContent = count;
+  if (cartBadge) cartBadge.textContent = count;
+  if (!cartItems || !cartEmpty || !cartFooter) {
+    if (cartTotalPrice) cartTotalPrice.textContent = `Ksh ${getCartTotal().toFixed(2)}`;
+    updateCheckoutFields();
+    return;
+  }
+
   if (cart.length === 0) {
     cartItems.innerHTML = '';
     cartEmpty.style.display = 'block';
@@ -394,10 +440,12 @@ function updateCartUI() {
       });
     });
   }
-  cartTotalPrice.textContent = `Ksh ${getCartTotal().toFixed(2)}`;
+  if (cartTotalPrice) cartTotalPrice.textContent = `Ksh ${getCartTotal().toFixed(2)}`;
+  updateCheckoutFields();
 }
 
 // ===== TOAST =====
+
 let toastTimeout;
 
 function showToast(message) {
@@ -421,25 +469,26 @@ function closeCart() {
   cartOverlay.classList.remove('open');
   document.body.style.overflow = '';
 }
-document.getElementById('cartToggle').addEventListener('click', openCart);
-document.getElementById('cartClose').addEventListener('click', closeCart);
-cartOverlay.addEventListener('click', closeCart);
-document.getElementById('cartContinueShopping').addEventListener('click', closeCart);
+if (cartToggle) cartToggle.addEventListener('click', openCart);
+if (cartClose) cartClose.addEventListener('click', closeCart);
+if (cartOverlay) cartOverlay.addEventListener('click', closeCart);
+if (cartContinueShopping) cartContinueShopping.addEventListener('click', closeCart);
 
 // ===== MOBILE MENU =====
-const menuToggle = document.getElementById('menuToggle');
-const mobileNav = document.getElementById('mobileNav');
-menuToggle.addEventListener('click', () => {
-  mobileNav.classList.toggle('open');
-  const icon = menuToggle.querySelector('i');
-  icon.className = mobileNav.classList.contains('open') ? 'fas fa-times' : 'fas fa-bars';
-});
-mobileNav.querySelectorAll('a').forEach(link => {
-  link.addEventListener('click', () => {
-    mobileNav.classList.remove('open');
-    menuToggle.querySelector('i').className = 'fas fa-bars';
+if (menuToggle && mobileNav) {
+  menuToggle.addEventListener('click', () => {
+    mobileNav.classList.toggle('open');
+    const icon = menuToggle.querySelector('i');
+    icon.className = mobileNav.classList.contains('open') ? 'fas fa-times' : 'fas fa-bars';
   });
-});
+  mobileNav.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      mobileNav.classList.remove('open');
+      const icon = menuToggle.querySelector('i');
+      if (icon) icon.className = 'fas fa-bars';
+    });
+  });
+}
 
 // ===== CATEGORY FILTERING =====
 function setActiveCategory(category) {
@@ -457,34 +506,44 @@ document.querySelectorAll('.header__nav-list a, .header__mobile-nav a, .footer__
     e.preventDefault();
     const category = el.dataset.category;
     if (category) setActiveCategory(category);
-    if (mobileNav.classList.contains('open')) {
+    if (mobileNav && mobileNav.classList.contains('open')) {
       mobileNav.classList.remove('open');
-      menuToggle.querySelector('i').className = 'fas fa-bars';
+      if (menuToggle) {
+        const icon = menuToggle.querySelector('i');
+        if (icon) icon.className = 'fas fa-bars';
+      }
     }
   });
 });
 
 // ===== SEARCH =====
-const searchInput = document.getElementById('searchInput');
-const searchBtn = document.getElementById('searchBtn');
-
 function performSearch() {
+  if (!searchInput) return;
   searchQuery = searchInput.value;
   renderProducts();
 }
-searchInput.addEventListener('input', performSearch);
-searchBtn.addEventListener('click', performSearch);
+if (searchInput) searchInput.addEventListener('input', performSearch);
+if (searchBtn) searchBtn.addEventListener('click', performSearch);
 
 // ===== CHECKOUT =====
-document.getElementById('checkoutBtn').addEventListener('click', async () => {
+if (checkoutBtn) checkoutBtn.addEventListener('click', async () => {
   if (cart.length === 0) {
     showToast('Your cart is empty!');
     return;
   }
 
+  const customer = getCustomerDetails();
+  if (!customer.name || !customer.email || !customer.phone) {
+    showToast('Please add your name, email, and phone before checkout.');
+    return;
+  }
+
   try {
-    await submitOrder(cart);
+    const result = await submitOrder(cart, customer);
     showToast('Order placed successfully! 🎉');
+    if (result.whatsappUrl) {
+      openWhatsAppLink(result.whatsappUrl);
+    }
   } catch (err) {
     console.warn('Order API failed:', err.message);
     showToast('Order placed locally. Database connection failed.');
@@ -495,14 +554,50 @@ document.getElementById('checkoutBtn').addEventListener('click', async () => {
   closeCart();
 });
 
-// ===== ADMIN PANEL (only if elements exist) =====
+// ===== CONTACT + ADMIN PANEL (only if elements exist) =====
 const adminLoginSection = document.getElementById('adminLoginSection');
 const adminContentSection = document.getElementById('adminContent');
 const adminLoginForm = document.getElementById('adminLoginForm');
 const adminLogoutBtn = document.getElementById('adminLogoutBtn');
 
-if (adminToggle && adminModal && adminOverlay && adminClose) {
+if (contactForm) {
+  contactForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const name = document.getElementById('contactName').value.trim();
+    const email = document.getElementById('contactEmail').value.trim();
+    const phone = document.getElementById('contactPhone').value.trim();
+    const message = document.getElementById('contactMessage').value.trim();
+    if (!name || !email || !phone || !message) {
+      showToast('Please fill in all contact fields.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE}/contacts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, phone, message }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Unable to send contact request.');
+      }
+      const result = await response.json();
+      showToast('Contact request sent!');
+      if (result.whatsappUrl) {
+        openWhatsAppLink(result.whatsappUrl);
+      }
+      contactForm.reset();
+    } catch (err) {
+      console.warn(err.message);
+      showToast('Unable to send contact request. Please try again later.');
+    }
+  });
+}
+
+if (adminLoginForm) {
   function openAdmin() {
+    if (!adminModal || !adminOverlay) return;
     adminModal.classList.add('open');
     adminOverlay.classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -514,9 +609,9 @@ if (adminToggle && adminModal && adminOverlay && adminClose) {
     adminOverlay.classList.remove('open');
     document.body.style.overflow = '';
   }
-  adminToggle.addEventListener('click', openAdmin);
-  adminClose.addEventListener('click', closeAdmin);
-  adminOverlay.addEventListener('click', closeAdmin);
+  if (adminToggle) adminToggle.addEventListener('click', openAdmin);
+  if (adminClose) adminClose.addEventListener('click', closeAdmin);
+  if (adminOverlay) adminOverlay.addEventListener('click', closeAdmin);
   
   async function backendLogin(email, password) {
     const response = await fetch(`${API_BASE}/auth/login`, {
@@ -561,6 +656,97 @@ if (adminToggle && adminModal && adminOverlay && adminClose) {
     return response.json();
   }
 
+  async function fetchContactRequests() {
+    if (!adminAuthenticated || !adminToken) return [];
+    const response = await fetch(`${API_BASE}/contacts`, {
+      headers: { Authorization: `Bearer ${adminToken}` },
+    });
+    if (!response.ok) throw new Error('Unable to load contact requests.');
+    return response.json();
+  }
+
+  async function updateContactStatus(id, status) {
+    if (!adminAuthenticated || !adminToken) return null;
+    const response = await fetch(`${API_BASE}/contacts/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${adminToken}`,
+      },
+      body: JSON.stringify({ status }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Unable to update contact status.');
+    }
+    return response.json();
+  }
+
+  async function renderContactRequests() {
+    if (!adminContactList) return;
+    try {
+      const contacts = await fetchContactRequests();
+      if (!Array.isArray(contacts) || contacts.length === 0) {
+        adminContactList.innerHTML = '<p style="color:#6b6b80;">No contact requests yet.</p>';
+        if (adminContactCountEl) adminContactCountEl.textContent = '0';
+        return;
+      }
+
+      const visibleContacts = contacts.filter(contact =>
+        contactStatusFilter === 'All' || contact.status === contactStatusFilter
+      );
+
+      if (visibleContacts.length === 0) {
+        adminContactList.innerHTML = `<p style="color:#6b6b80;">No ${contactStatusFilter.toLowerCase()} contact requests.</p>`;
+        if (adminContactCountEl) adminContactCountEl.textContent = '0';
+        return;
+      }
+
+      adminContactList.innerHTML = visibleContacts.map(contact => {
+        const statusTag = contact.status === 'New'
+          ? '<span class="admin-product-category" style="background:#fef3c7;color:#92400e;">New</span>'
+          : '<span class="admin-product-category" style="background:#dcfce7;color:#166534;">Read</span>';
+        const actionButton = contact.status === 'New'
+          ? `<button class="btn btn-outline admin-mark-read" data-id="${contact._id}">Mark as read</button>`
+          : '';
+
+        return `
+          <div class="admin-product-item">
+            <div class="admin-product-info">
+              <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.5rem;">
+                <strong>${contact.name}</strong>
+                ${statusTag}
+              </div>
+              <div class="admin-product-category">${contact.email} · ${contact.phone}</div>
+              <p style="margin:0.6rem 0 0 0; color:#4b5563;">${contact.message}</p>
+            </div>
+            <div style="text-align:right; min-width:140px; display:flex; flex-direction:column; gap:0.8rem; align-items:flex-end;">
+              <div style="font-size:0.85rem; color:#6b7280;">${new Date(contact.createdAt).toLocaleString()}</div>
+              ${actionButton}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      if (adminContactCountEl) adminContactCountEl.textContent = String(visibleContacts.length);
+      document.querySelectorAll('.admin-mark-read').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = btn.dataset.id;
+          try {
+            await updateContactStatus(id, 'Read');
+            showToast('Contact request marked as read.');
+            renderContactRequests();
+          } catch (err) {
+            showToast(err.message);
+          }
+        });
+      });
+    } catch (err) {
+      if (adminContactList) adminContactList.innerHTML = '<p style="color:#e53e3e;">Unable to load contact requests.</p>';
+      console.warn(err.message);
+    }
+  }
+
   async function renderAdminUsers() {
     if (!adminList) return;
     try {
@@ -591,6 +777,7 @@ if (adminToggle && adminModal && adminOverlay && adminClose) {
             if (!response.ok) throw new Error('Could not delete admin.');
             showToast('Admin removed.');
             renderAdminUsers();
+            renderContactRequests();
           } catch (err) {
             showToast('Unable to remove admin.');
           }
@@ -626,7 +813,14 @@ if (adminToggle && adminModal && adminOverlay && adminClose) {
       if (adminLogoutBtn) adminLogoutBtn.style.display = 'inline-flex';
       renderAdminProductList();
       renderAdminUsers();
+      renderContactRequests();
       updateDashboardCounts();
+    } else {
+      adminLoginSection.style.display = 'block';
+      adminContentSection.style.display = 'none';
+      if (adminLogoutBtn) adminLogoutBtn.style.display = 'none';
+    }
+  }
 
   function renderAdminProductList() {
     if (!adminProductList) return;
@@ -816,6 +1010,13 @@ if (adminToggle && adminModal && adminOverlay && adminClose) {
 
   if (adminLogoutBtn) {
     adminLogoutBtn.addEventListener('click', logoutAdmin);
+  }
+
+  if (adminContactFilter) {
+    adminContactFilter.addEventListener('change', () => {
+      contactStatusFilter = adminContactFilter.value;
+      renderContactRequests();
+    });
   }
   
   if (addProductForm) {

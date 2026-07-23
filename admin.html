@@ -73,6 +73,10 @@
                 <strong id="adminUserCount">—</strong>
               </div>
               <div class="admin-summary-item">
+                <span>Contact requests</span>
+                <strong id="adminContactCount">—</strong>
+              </div>
+              <div class="admin-summary-item">
                 <span>Server status</span>
                 <strong>Online</strong>
               </div>
@@ -122,6 +126,23 @@
                   <button type="submit" class="btn btn-primary">Add Admin</button>
                 </form>
                 <div id="adminList" class="admin-list" style="margin-top:1.5rem;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-card">
+            <div class="admin-card-title">Recent Contact Requests</div>
+            <div class="admin-card-body">
+              <div style="display:flex; align-items:center; justify-content:flex-start; gap:0.75rem; margin-bottom:1rem; flex-wrap:wrap;">
+                <label for="adminContactFilter" style="margin:0; font-weight:600; color:#374151;">Filter requests:</label>
+                <select id="adminContactFilter" style="padding:0.65rem 0.75rem; border:1px solid #d1d5db; border-radius:0.5rem; background:#fff; color:#111827;">
+                  <option value="All">All</option>
+                  <option value="New">New</option>
+                  <option value="Read">Read</option>
+                </select>
+              </div>
+              <div id="adminContactList" class="admin-list">
+                <p style="color:#6b6b80;">Sign in to view incoming contact requests.</p>
               </div>
             </div>
           </div>

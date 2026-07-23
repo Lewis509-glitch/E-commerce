@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/products');
 const adminRoutes = require('./routes/admins');
 const orderRoutes = require('./routes/orders');
+const contactRoutes = require('./routes/contacts');
 const Admin = require('./models/Admin');
 const bcrypt = require('bcryptjs');
 
@@ -14,6 +15,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const DEFAULT_ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'admin@shopverse.local').toLowerCase().trim();
 const DEFAULT_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Admin123!';
+const ADMIN_WHATSAPP_NUMBER = process.env.ADMIN_WHATSAPP_NUMBER || '+254700000000';
 
 app.use(cors());
 app.use(express.json());
@@ -23,6 +25,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/admins', adminRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/contacts', contactRoutes);
 app.use('/api/setup', require('./routes/setup'));
 
 app.get('/', (req, res) => res.send('ShopVerse backend is running.'));
