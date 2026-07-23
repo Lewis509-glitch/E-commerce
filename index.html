@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KYLIN COMPANY — Premium E-Commerce</title>
+  <!-- External CSS -->
+  <link rel="stylesheet" href="style.css" />
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+
+</head>
+
+<body>
+  
+  <!-- ===== HEADER ===== -->
+  <header class="header" id="header">
+    <div class="container header__inner">
+      
+      <!-- Logo -->
+      <a href="#" class="header__logo">
+        <i class="fas fa-cube"></i> KYLIN COMPANY
+      </a>
+      
+      <!-- Desktop Navigation -->
+      <nav class="header__nav" id="mainNav">
+        <ul class="header__nav-list">
+          <li><a href="#" class="active" data-category="all">All</a></li>
+          <li><a href="#" data-category="electronics">Electronics</a></li>
+          <li><a href="#" data-category="clothing">Clothing</a></li>
+          <li><a href="#" data-category="home">Home & Living</a></li>
+          <li><a href="#" data-category="beauty">Beauty</a></li>
+        </ul>
+      </nav>
+      
+      <!-- Header Actions -->
+      <div class="header__actions">
+        <!-- Search -->
+        <div class="header__search">
+          <input type="text" id="searchInput" placeholder="Search products..." />
+          <button id="searchBtn"><i class="fas fa-search"></i></button>
+        </div>
+        
+        <!-- Cart Icon -->
+        <button class="header__cart-btn" id="cartToggle" aria-label="Open cart">
+          <i class="fas fa-shopping-bag"></i>
+          <span class="cart-badge" id="cartBadge">0</span>
+        </button>
+        
+        <!-- Mobile Menu Toggle -->
+        <button class="header__menu-toggle" id="menuToggle" aria-label="Toggle menu">
+          <i class="fas fa-bars">&#9776</i>
+        </button>
+      </div>
+      
+    </div>
+    
+    <!-- Mobile Navigation (hidden by default) -->
+    <div class="header__mobile-nav" id="mobileNav">
+      <ul>
+        <li><a href="#" class="active" data-category="all">All</a></li>
+        <li><a href="#" data-category="electronics">Electronics</a></li>
+        <li><a href="#" data-category="clothing">Clothing</a></li>
+        <li><a href="#" data-category="home">Home & Living</a></li>
+        <li><a href="#" data-category="beauty">Beauty</a></li>
+      </ul>
+    </div>
+  </header>
+  
+  <!-- ===== MAIN ===== -->
+  <main class="main">
+    
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container hero__inner">
+        <div class="hero__content">
+          <span class="hero__tag">Summer Sale</span>
+          <h1>Discover Premium <br />Products</h1>
+          <p>Shop the latest trends in electronics, fashion, home goods, and more. Quality guaranteed.</p>
+          <div class="hero__buttons">
+            <a href="#products" class="btn btn-primary">Shop Now</a>
+            <a href="#products" class="btn btn-outline">Explore</a>
+          </div>
+        </div>
+        <div class="hero__image">
+          <img src="pdt3.jpg" alt="Shopping" />
+        </div>
+      </div>
+    </section>
+    
+    <!-- Category Pills (mobile friendly) -->
+    <section class="category-pills">
+      <div class="container">
+        <div class="category-pills__list">
+          <button class="pill active" data-category="all">All</button>
+          <button class="pill" data-category="electronics"><i class="fas fa-laptop"></i> Electronics</button>
+          <button class="pill" data-category="clothing"><i class="fas fa-tshirt"></i> Clothing</button>
+          <button class="pill" data-category="home"><i class="fas fa-couch"></i> Home</button>
+          <button class="pill" data-category="beauty"><i class="fas fa-spa"></i> Beauty</button>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Products Grid -->
+    <section class="products" id="products">
+      <div class="container">
+        <div class="products__header">
+          <h2>Featured Products</h2>
+          <span class="products__count" id="productCount">0 items</span>
+        </div>
+        <div class="products__grid" id="productGrid">
+          <!-- Products injected by JavaScript -->
+        </div>
+      </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container footer__inner">
+        <div class="footer__brand">
+          <a href="#" class="footer__logo"><i class="fas fa-cube"></i> ShopVerse</a>
+          <p>Your one-stop shop for premium goods. Quality, style, and convenience — all in one place.</p>
+          <div class="footer__social">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+        <div class="footer__links">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Contact</a></li>
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">Shipping</a></li>
+          </ul>
+        </div>
+        <div class="footer__links">
+          <h4>Categories</h4>
+          <ul>
+            <li><a href="#" data-category="electronics">Electronics</a></li>
+            <li><a href="#" data-category="clothing">Clothing</a></li>
+            <li><a href="#" data-category="home">Home & Living</a></li>
+            <li><a href="#" data-category="beauty">Beauty</a></li>
+          </ul>
+        </div>
+        <div class="footer__newsletter">
+          <h4>Newsletter</h4>
+          <p>Get the latest deals and updates.</p>
+          <form id="newsletterForm">
+            <input type="email" placeholder="Your email" required />
+            <button type="submit"><i class="fas fa-paper-plane"></i></button>
+          </form>
+        </div>
+      </div>
+      
+      <button class="header__admin-btn" id="adminToggle" aria-label="Admin panel">
+          <h1>admin</h1>
+      </button>
+      
+      <div class="footer__bottom">
+        <div class="container">
+          <p>&copy; 2026 ShopVerse. All rights reserved.</p>
+        </div>
+        
+        
+      </div>
+    </footer>
+    
+  </main>
+  
+  <!-- ===== CART SIDEBAR ===== -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <aside class="cart-sidebar" id="cartSidebar">
+    <div class="cart-sidebar__header">
+      <h3><i class="fas fa-shopping-bag"></i> Your Cart</h3>
+      <button class="cart-sidebar__close" id="cartClose"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="cart-sidebar__body" id="cartBody">
+      <!-- Cart items injected by JavaScript -->
+      <div class="cart-empty" id="cartEmpty">
+        <i class="fas fa-shopping-bag"></i>
+        <p>Your cart is empty.</p>
+        <button class="btn btn-primary" id="cartContinueShopping">Continue Shopping</button>
+      </div>
+      <div class="cart-items" id="cartItems"></div>
+    </div>
+    <div class="cart-sidebar__footer" id="cartFooter">
+      <div class="cart-total">
+        <span>Subtotal</span>
+        <span id="cartTotalPrice">Ksh 0.00</span>
+      </div>
+      <button class="btn btn-primary btn-block" id="checkoutBtn">Proceed to Checkout</button>
+    </div>
+  </aside>
+  
+  <!-- ===== TOAST NOTIFICATION ===== -->
+  <div class="toast" id="toast"></div>
+  
+
+  <!-- ===== ADMIN PANEL MODAL ===== -->
+  <div class="admin-overlay" id="adminOverlay"></div>
+  <div class="admin-modal" id="adminModal">
+    <div class="admin-modal__header">
+      <h2><i class="fas fa-user-cog"></i> Admin Panel</h2>
+      <div>
+        <button class="btn btn-outline" id="adminLogoutBtn" style="display:none; margin-right:0.5rem;">Logout</button>
+        <button class="admin-modal__close" id="adminClose"><i class="fas fa-times"></i></button>
+      </div>
+    </div>
+    <div class="admin-modal__body">
+      <section class="admin-section" id="adminLoginSection">
+        <h3>Admin Sign In</h3>
+        <form id="adminLoginForm">
+          <div class="admin-form-row">
+            <input type="email" id="adminEmail" placeholder="Admin email" required />
+            <input type="password" id="adminPassword" placeholder="Password" required />
+          </div>
+          <button type="submit" class="btn btn-primary">Sign In</button>
+        </form>
+        <p style="margin-top:1rem; color:#6b6b80; font-size:0.95rem;">Use admin@shopverse.local / Admin123! if backend is unavailable.</p>
+      </section>
+      <div id="adminContent" style="display:none;">
+        <section class="admin-section">
+          <h3>Add New Product</h3>
+          <form id="addProductForm">
+            <div class="admin-form-row">
+              <input type="text" id="addName" placeholder="Product name" required />
+              <select id="addCategory" required>
+                <option value="">Category</option>
+                <option value="electronics">Electronics</option>
+                <option value="clothing">Clothing</option>
+                <option value="home">Home & Living</option>
+                <option value="beauty">Beauty</option>
+              </select>
+            </div>
+            <div class="admin-form-row">
+              <input type="number" id="addPrice" placeholder="Price" step="0.01" required />
+              <input type="number" id="addRating" placeholder="Rating (0-5)" step="0.1" min="0" max="5" required />
+            </div>
+            <input type="file" id="addImage" accept="image/*" required />
+            <textarea id="addDescription" placeholder="Product description" rows="2" required></textarea>
+            <button type="submit" class="btn btn-primary">Add Product</button>
+          </form>
+        </section>
+        <section class="admin-section">
+          <h3>Admin Users</h3>
+          <form id="addAdminForm">
+            <div class="admin-form-row">
+              <input type="email" id="newAdminEmail" placeholder="New admin email" required />
+              <input type="password" id="newAdminPassword" placeholder="New admin password" required />
+            </div>
+            <button type="submit" class="btn btn-primary">Add Admin</button>
+          </form>
+          <div id="adminList" style="margin-top:1rem;"></div>
+        </section>
+        <section class="admin-section">
+          <h3>Manage Products</h3>
+          <div id="adminProductList">
+            <!-- dynamically rendered -->
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+  
+    <script src="script.js"></script>
+</body>
+
+</html>
