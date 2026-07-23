@@ -1,79 +1,4 @@
-// ===== PRODUCT DATA (with localStorage fallback) =====
-const DEFAULT_PRODUCTS = [
-{
-  id: 1,
-  name: 'Wireless Noise-Cancelling Headphones',
-  category: 'electronics',
-  price: 149.99,
-  rating: 4.8,
-  image: 'pdt1.jpg',
-  description: 'Premium over-ear headphones with active noise cancellation and 30-hour battery life.'
-},
-{
-  id: 2,
-  name: 'Slim Fit Cotton T-Shirt',
-  category: 'clothing',
-  price: 24.99,
-  rating: 4.3,
-  image: 'pdt2.jpg',
-  description: 'Comfortable 100% organic cotton t-shirt with a modern slim fit.'
-},
-{
-  id: 3,
-  name: 'Modern Ceramic Table Lamp',
-  category: 'home',
-  price: 59.99,
-  rating: 4.6,
-  image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=200&h=200&fit=crop&crop=center&auto=format',
-  description: 'Elegant ceramic lamp with warm LED glow — perfect for any living space.'
-},
-{
-  id: 4,
-  name: 'Hydrating Facial Serum',
-  category: 'beauty',
-  price: 39.99,
-  rating: 4.7,
-  image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=200&h=200&fit=crop&crop=center&auto=format',
-  description: 'Vitamin C and hyaluronic acid serum for radiant, hydrated skin.'
-},
-{
-  id: 5,
-  name: 'Smart Fitness Watch',
-  category: 'electronics',
-  price: 199.99,
-  rating: 4.9,
-  image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&h=200&fit=crop&crop=center&auto=format',
-  description: 'Track your heart rate, sleep, and workouts with this advanced smartwatch.'
-},
-{
-  id: 6,
-  name: 'Classic Denim Jacket',
-  category: 'clothing',
-  price: 79.99,
-  rating: 4.4,
-  image: 'https://images.unsplash.com/photo-1551537482-f2075a1d41f2?w=200&h=200&fit=crop&crop=center&auto=format',
-  description: 'Timeless denim jacket with a relaxed fit and durable fabric.'
-},
-{
-  id: 7,
-  name: 'Aromatherapy Diffuser',
-  category: 'home',
-  price: 34.99,
-  rating: 4.2,
-  image: 'https://images.unsplash.com/photo-1587918842454-870dbd18261a?w=200&h=200&fit=crop&crop=center&auto=format',
-  description: 'Ultrasonic essential oil diffuser with color-changing LED lights.'
-},
-{
-  id: 8,
-  name: 'Organic Rosewater Toner',
-  category: 'beauty',
-  price: 18.99,
-  rating: 4.5,
-  image: 'https://images.unsplash.com/photo-1601049676869-702ea24cfd58?w=200&h=200&fit=crop&crop=center&auto=format',
-  description: 'Pure rosewater toner to balance and refresh your skin.'
-}];
-
-// Load products from localStorage or use defaults
+// Load products from the backend first, with local fallback if API is unavailable
 const API_BASE = window.location.protocol === 'file:' ? 'http://localhost:3000/api' : '/api';
 const ADMIN_FALLBACK_EMAIL = 'admin@shopverse.local';
 const ADMIN_FALLBACK_PASSWORD = 'Admin123!';
@@ -81,20 +6,23 @@ let products = [];
 let adminToken = sessionStorage.getItem('shopverse_token');
 let adminAuthenticated = Boolean(adminToken);
 
-function loadProducts() {
-  const stored = localStorage.getItem('shopverse_products');
-  if (stored) {
-    try {
-      products = JSON.parse(stored);
-    } catch (e) {
-      products = [...DEFAULT_PRODUCTS];
+async function loadProducts() {
+  const fetched = await fetchProductsFromApi();
+  if (!fetched) {
+    const stored = localStorage.getItem('shopverse_products');
+    if (stored) {
+      try {
+        products = JSON.parse(stored);
+      } catch (e) {
+        products = [];
+      }
+    } else {
+      products = [];
     }
-  } else {
-    products = [...DEFAULT_PRODUCTS];
+    products.forEach(p => { if (!p.id) p.id = Date.now() + Math.random(); });
+    saveProducts();
+    renderProducts();
   }
-  products.forEach(p => { if (!p.id) p.id = Date.now() + Math.random(); });
-  saveProducts();
-  fetchProductsFromApi();
 }
 
 async function fetchProductsFromApi() {
@@ -115,10 +43,12 @@ async function fetchProductsFromApi() {
       saveProducts();
       renderProducts();
       if (adminAuthenticated) renderAdminProductList();
+      return true;
     }
   } catch (err) {
     console.warn('Backend API unavailable, using local data.', err.message);
   }
+  return false;
 }
 
 function saveProducts() {
@@ -283,6 +213,7 @@ const checkoutName = document.getElementById('checkoutName');
 const checkoutEmail = document.getElementById('checkoutEmail');
 const checkoutPhone = document.getElementById('checkoutPhone');
 const contactForm = document.getElementById('contactForm');
+const adminLoginStatus = document.getElementById('adminLoginStatus');
 const searchInput = document.getElementById('searchInput');
 const searchBtn = document.getElementById('searchBtn');
 const checkoutBtn = document.getElementById('checkoutBtn');
@@ -631,10 +562,17 @@ if (adminLoginForm) {
     return email === ADMIN_FALLBACK_EMAIL && password === ADMIN_FALLBACK_PASSWORD;
   }
   
+  function updateLoginStatus(message, isError = false) {
+    if (!adminLoginStatus) return;
+    adminLoginStatus.textContent = message;
+    adminLoginStatus.style.color = isError ? '#dc2626' : '#1f2937';
+  }
+
   function loginSuccess(token) {
     adminAuthenticated = true;
     adminToken = token || null;
     if (token) sessionStorage.setItem('shopverse_token', token);
+    updateLoginStatus('Signed in successfully.', false);
     setAdminView();
     showToast('Admin signed in.');
   }
@@ -970,14 +908,22 @@ if (adminLoginForm) {
         loginSuccess(token);
         fetchProductsFromApi();
       } catch (err) {
+        const msg = err.message || 'Login failed.';
         if (fallbackLocalLogin(email, password)) {
-          adminAuthenticated = true;
-          adminToken = null;
-          sessionStorage.removeItem('shopverse_token');
-          setAdminView();
-          showToast('Admin signed in locally. Backend login is required to save products to MongoDB.');
+          if (ordersList) {
+            updateLoginStatus('Backend access is required to view orders. Start the server and try again.', true);
+            showToast('Orders page requires backend login.');
+          } else {
+            adminAuthenticated = true;
+            adminToken = null;
+            sessionStorage.removeItem('shopverse_token');
+            updateLoginStatus('Signed in locally. Backend login is required to save products to MongoDB.', false);
+            setAdminView();
+            showToast('Admin signed in locally.');
+          }
         } else {
-          showToast('Login failed.');
+          updateLoginStatus(msg, true);
+          showToast(msg);
         }
       }
     });
