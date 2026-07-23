@@ -35,26 +35,29 @@
           <div>
             <p class="admin-eyebrow">Order Tracking</p>
             <h1>Customer orders and delivery status</h1>
-            <p class="admin-intro">Review completed and pending orders, track totals, and inspect order details from the database.</p>
+            <p class="admin-intro">Sign in to view and manage order history, delivery progress, and customer information.</p>
           </div>
           <button class="btn btn-outline" id="adminLogoutBtn" style="display:none;">Logout</button>
         </div>
 
-        <section class="admin-section" id="adminLoginSection">
-          <h3>Admin Sign In</h3>
-          <form id="adminLoginForm">
-            <div class="admin-form-row">
-              <input type="email" id="adminEmail" placeholder="Admin email" required />
-              <input type="password" id="adminPassword" placeholder="Password" required />
+        <div class="admin-panel-grid">
+          <div class="admin-card">
+            <div class="admin-card-title">Admin Sign In</div>
+            <div class="admin-card-body">
+              <p class="admin-note" style="margin-bottom:1rem;">Enter your admin credentials to unlock order tracking and status updates.</p>
+              <form id="adminLoginForm">
+                <div class="admin-form-row">
+                  <input type="email" id="adminEmail" placeholder="Admin email" required />
+                  <input type="password" id="adminPassword" placeholder="Password" required />
+                </div>
+                <button type="submit" class="btn btn-primary">Sign In</button>
+              </form>
+              <p class="admin-note" style="margin-top:1rem;">Need a quick login? Use <strong>admin@shopverse.local</strong> / <strong>Admin123!</strong>.</p>
             </div>
-            <button type="submit" class="btn btn-primary">Sign In</button>
-          </form>
-          <p class="admin-note">After sign in, you will be able to access tracked orders saved in the database.</p>
-        </section>
+          </div>
 
-        <div id="adminContent" style="display:none;">
           <div class="admin-card admin-card-summary">
-            <div class="admin-card-title">Order Summary</div>
+            <div class="admin-card-title">Order Snapshot</div>
             <div class="admin-card-body admin-summary-list">
               <div class="admin-summary-item">
                 <span>Total orders</span>
@@ -66,7 +69,9 @@
               </div>
             </div>
           </div>
+        </div>
 
+        <div id="adminContent" style="display:none;">
           <div class="admin-card admin-product-table-card">
             <div class="admin-card-title">Tracked Orders</div>
             <div class="admin-card-body" id="ordersList"></div>
