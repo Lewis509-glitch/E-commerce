@@ -125,6 +125,99 @@ function saveProducts() {
   localStorage.setItem('shopverse_products', JSON.stringify(products));
 }
 
+async function submitOrder(cartItems) {
+  if (!cartItems || cartItems.length === 0) {
+    throw new Error('Cart is empty.');
+  }
+
+  const orderPayload = {
+    customer: { name: 'Guest Shopper', email: 'guest@shopverse.local' },
+    items: cartItems.map(item => ({
+      productId: item.id,
+      name: item.name,
+      quantity: item.qty || 1,
+      price: item.price,
+    })),
+    total: cartItems.reduce((sum, item) => sum + item.price * (item.qty || 1), 0),
+    status: 'Processing',
+  };
+
+  const response = await fetch(`${API_BASE}/orders`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(orderPayload),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Unable to submit order.');
+  }
+
+  return response.json();
+}
+
+async function fetchOrders() {
+  if (!adminAuthenticated || !adminToken || !ordersList) return [];
+  const response = await fetch(`${API_BASE}/orders`, {
+    headers: { Authorization: `Bearer ${adminToken}` },
+  });
+  if (!response.ok) throw new Error('Unable to fetch orders.');
+  return response.json();
+}
+
+function renderOrdersList(orders) {
+  if (!ordersList) return;
+  if (!Array.isArray(orders) || orders.length === 0) {
+    ordersList.innerHTML = '<p style="color:#6b6b80;">No orders found.</p>';
+    return;
+  }
+
+  ordersList.innerHTML = orders.map(order => `
+    <div class="admin-product-item">
+      <div class="admin-product-info">
+        <strong>Order #${order._id.slice(-6)}</strong>
+        <span class="admin-product-category">${new Date(order.createdAt).toLocaleString()}</span>
+        <p style="margin:0.6rem 0 0 0; color:#4b5563;">${order.customer.name} — ${order.customer.email}</p>
+      </div>
+      <div class="admin-product-edits" style="flex:1 1 220px; justify-content:flex-end; align-items:flex-start;">
+        <div style="text-align:right;">
+          <div style="font-weight:700;">Ksh ${order.total.toFixed(2)}</div>
+          <div style="font-size:0.9rem; color:#6b7280; margin-top:0.4rem;">${order.status}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function updateDashboardCounts() {
+  if (adminProductCountEl) {
+    adminProductCountEl.textContent = products.length;
+  }
+  if (adminUserCountEl) {
+    try {
+      const users = await fetchAdminUsers();
+      adminUserCountEl.textContent = Array.isArray(users) ? users.length : '—';
+    } catch (err) {
+      adminUserCountEl.textContent = '—';
+    }
+  }
+  if (orderSummaryCount || orderSummaryStatus) {
+    try {
+      const orders = await fetchOrders();
+      if (orderSummaryCount) orderSummaryCount.textContent = Array.isArray(orders) ? orders.length : '0';
+      if (orderSummaryStatus) {
+        const latest = orders[0];
+        orderSummaryStatus.textContent = latest ? latest.status : 'No orders';
+      }
+      renderOrdersList(orders);
+    } catch (err) {
+      if (orderSummaryCount) orderSummaryCount.textContent = '0';
+      if (orderSummaryStatus) orderSummaryStatus.textContent = 'Unavailable';
+      console.warn(err.message);
+    }
+  }
+}
+
 // ===== STATE =====
 let cart = [];
 let currentCategory = 'all';
@@ -151,6 +244,11 @@ const adminProductList = document.getElementById('adminProductList');
 const addProductForm = document.getElementById('addProductForm');
 const adminList = document.getElementById('adminList');
 const addAdminForm = document.getElementById('addAdminForm');
+const adminProductCountEl = document.getElementById('adminProductCount');
+const adminUserCountEl = document.getElementById('adminUserCount');
+const orderSummaryCount = document.getElementById('orderSummaryCount');
+const orderSummaryStatus = document.getElementById('orderSummaryStatus');
+const ordersList = document.getElementById('ordersList');
 
 // ===== RENDER PRODUCTS =====
 function renderProducts() {
@@ -378,12 +476,20 @@ searchInput.addEventListener('input', performSearch);
 searchBtn.addEventListener('click', performSearch);
 
 // ===== CHECKOUT =====
-document.getElementById('checkoutBtn').addEventListener('click', () => {
+document.getElementById('checkoutBtn').addEventListener('click', async () => {
   if (cart.length === 0) {
     showToast('Your cart is empty!');
     return;
   }
-  showToast('Order placed successfully! 🎉');
+
+  try {
+    await submitOrder(cart);
+    showToast('Order placed successfully! 🎉');
+  } catch (err) {
+    console.warn('Order API failed:', err.message);
+    showToast('Order placed locally. Database connection failed.');
+  }
+
   cart = [];
   updateCartUI();
   closeCart();
@@ -520,12 +626,7 @@ if (adminToggle && adminModal && adminOverlay && adminClose) {
       if (adminLogoutBtn) adminLogoutBtn.style.display = 'inline-flex';
       renderAdminProductList();
       renderAdminUsers();
-    } else {
-      adminLoginSection.style.display = 'block';
-      adminContentSection.style.display = 'none';
-      if (adminLogoutBtn) adminLogoutBtn.style.display = 'none';
-    }
-  }
+      updateDashboardCounts();
 
   function renderAdminProductList() {
     if (!adminProductList) return;
@@ -680,7 +781,7 @@ if (adminToggle && adminModal && adminOverlay && adminClose) {
           adminToken = null;
           sessionStorage.removeItem('shopverse_token');
           setAdminView();
-          showToast('Admin signed in locally.');
+          showToast('Admin signed in locally. Backend login is required to save products to MongoDB.');
         } else {
           showToast('Login failed.');
         }
@@ -733,25 +834,22 @@ if (adminToggle && adminModal && adminOverlay && adminClose) {
         return;
       }
 
-      try {
-        if (adminAuthenticated && adminToken) {
-          const created = await addProductToBackend(name, category, price, rating, description, file);
-          products.unshift(created);
-          saveProducts();
-          renderProducts();
-          if (adminProductList) renderAdminProductList();
-          addProductForm.reset();
-          showToast('Product added successfully!');
-          return;
-        }
-      } catch (err) {
-        console.warn('Backend add failed, falling back to local product creation.', err.message);
+      if (!adminAuthenticated || !adminToken) {
+        showToast('Please sign in to the backend to save products to MongoDB.');
+        return;
       }
 
       try {
-        await addProductLocally(name, category, price, rating, description, file);
+        const created = await addProductToBackend(name, category, price, rating, description, file);
+        products.unshift(created);
+        saveProducts();
+        renderProducts();
+        if (adminProductList) renderAdminProductList();
+        addProductForm.reset();
+        showToast('Product added successfully!');
       } catch (err) {
-        showToast('Failed to add product.');
+        console.warn('Backend add failed.', err.message);
+        showToast('Unable to save product to backend. Check server status and login.');
       }
     });
   }

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShopVerse Order Tracking</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+</head>
+
+<body>
+  <header class="header" id="header">
+    <div class="container header__inner">
+      <a href="index.html" class="header__logo">
+        <i class="fas fa-cube"></i> KYLIN COMPANY
+      </a>
+      <nav class="header__nav" id="mainNav">
+        <ul class="header__nav-list">
+          <li><a href="index.html#products">Products</a></li>
+          <li><a href="admin.html">Admin</a></li>
+        </ul>
+      </nav>
+      <div class="header__actions">
+        <a href="index.html" class="btn btn-outline">Back to Store</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="admin-page">
+      <div class="container">
+        <div class="admin-panel-header">
+          <div>
+            <p class="admin-eyebrow">Order Tracking</p>
+            <h1>Customer orders and delivery status</h1>
+            <p class="admin-intro">Review completed and pending orders, track totals, and inspect order details from the database.</p>
+          </div>
+          <button class="btn btn-outline" id="adminLogoutBtn" style="display:none;">Logout</button>
+        </div>
+
+        <section class="admin-section" id="adminLoginSection">
+          <h3>Admin Sign In</h3>
+          <form id="adminLoginForm">
+            <div class="admin-form-row">
+              <input type="email" id="adminEmail" placeholder="Admin email" required />
+              <input type="password" id="adminPassword" placeholder="Password" required />
+            </div>
+            <button type="submit" class="btn btn-primary">Sign In</button>
+          </form>
+          <p class="admin-note">After sign in, you will be able to access tracked orders saved in the database.</p>
+        </section>
+
+        <div id="adminContent" style="display:none;">
+          <div class="admin-card admin-card-summary">
+            <div class="admin-card-title">Order Summary</div>
+            <div class="admin-card-body admin-summary-list">
+              <div class="admin-summary-item">
+                <span>Total orders</span>
+                <strong id="orderSummaryCount">—</strong>
+              </div>
+              <div class="admin-summary-item">
+                <span>Latest status</span>
+                <strong id="orderSummaryStatus">—</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-card admin-product-table-card">
+            <div class="admin-card-title">Tracked Orders</div>
+            <div class="admin-card-body" id="ordersList"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

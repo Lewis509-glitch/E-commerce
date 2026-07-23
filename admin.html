@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShopVerse Admin Panel</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+</head>
+
+<body>
+  <header class="header" id="header">
+    <div class="container header__inner">
+      <a href="index.html" class="header__logo">
+        <i class="fas fa-cube"></i> KYLIN COMPANY
+      </a>
+      <nav class="header__nav" id="mainNav">
+        <ul class="header__nav-list">
+          <li><a href="index.html#products">Products</a></li>
+          <li><a href="orders.html">Orders</a></li>
+          <li><a href="index.html#">Home</a></li>
+        </ul>
+      </nav>
+      <div class="header__actions">
+        <a href="index.html" class="btn btn-outline">Back to Store</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="admin-page">
+      <div class="container">
+        <div class="admin-panel-header">
+          <div>
+            <p class="admin-eyebrow">Admin Dashboard</p>
+            <h1>Manage your shop catalog with confidence</h1>
+            <p class="admin-intro">Add products, manage inventory, and create new admin users from a single, secure admin panel.</p>
+          </div>
+          <div class="admin-panel-actions">
+            <a href="orders.html" class="btn btn-primary">View Orders</a>
+            <button class="btn btn-outline" id="adminLogoutBtn" style="display:none;">Logout</button>
+          </div>
+        </div>
+
+        <div class="admin-panel-grid">
+          <div class="admin-card">
+            <div class="admin-card-title">Admin Access</div>
+            <div class="admin-card-body">
+              <section class="admin-section" id="adminLoginSection">
+                <form id="adminLoginForm">
+                  <div class="admin-form-row">
+                    <input type="email" id="adminEmail" placeholder="Admin email" required />
+                    <input type="password" id="adminPassword" placeholder="Password" required />
+                  </div>
+                  <button type="submit" class="btn btn-primary">Sign In</button>
+                </form>
+                <p class="admin-note">Use <strong>admin@shopverse.local</strong> / <strong>Admin123!</strong> if backend is unavailable.</p>
+              </section>
+            </div>
+          </div>
+
+          <div class="admin-card admin-card-summary">
+            <div class="admin-card-title">Quick overview</div>
+            <div class="admin-card-body admin-summary-list">
+              <div class="admin-summary-item">
+                <span>Total products</span>
+                <strong id="adminProductCount">—</strong>
+              </div>
+              <div class="admin-summary-item">
+                <span>Admin users</span>
+                <strong id="adminUserCount">—</strong>
+              </div>
+              <div class="admin-summary-item">
+                <span>Server status</span>
+                <strong>Online</strong>
+              </div>
+              <div class="admin-summary-item">
+                <span>Orders dashboard</span>
+                <strong><a href="orders.html" class="btn btn-outline" style="padding:0.55rem 1rem; font-size:0.9rem;">Open</a></strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="adminContent" style="display:none;">
+          <div class="admin-panel-grid">
+            <div class="admin-card">
+              <div class="admin-card-title">Add New Product</div>
+              <div class="admin-card-body">
+                <form id="addProductForm">
+                  <div class="admin-form-row">
+                    <input type="text" id="addName" placeholder="Product name" required />
+                    <select id="addCategory" required>
+                      <option value="">Category</option>
+                      <option value="electronics">Electronics</option>
+                      <option value="clothing">Clothing</option>
+                      <option value="home">Home & Living</option>
+                      <option value="beauty">Beauty</option>
+                    </select>
+                  </div>
+                  <div class="admin-form-row">
+                    <input type="number" id="addPrice" placeholder="Price" step="0.01" required />
+                    <input type="number" id="addRating" placeholder="Rating (0-5)" step="0.1" min="0" max="5" required />
+                  </div>
+                  <input type="file" id="addImage" accept="image/*" required />
+                  <textarea id="addDescription" placeholder="Product description" rows="3" required></textarea>
+                  <button type="submit" class="btn btn-primary">Add Product</button>
+                </form>
+              </div>
+            </div>
+
+            <div class="admin-card">
+              <div class="admin-card-title">Admin Users</div>
+              <div class="admin-card-body">
+                <form id="addAdminForm">
+                  <div class="admin-form-row">
+                    <input type="email" id="newAdminEmail" placeholder="New admin email" required />
+                    <input type="password" id="newAdminPassword" placeholder="New admin password" required />
+                  </div>
+                  <button type="submit" class="btn btn-primary">Add Admin</button>
+                </form>
+                <div id="adminList" class="admin-list" style="margin-top:1.5rem;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-card admin-product-table-card">
+            <div class="admin-card-title">Manage Products</div>
+            <div class="admin-card-body">
+              <div id="adminProductList"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
